@@ -39,8 +39,12 @@ alengo_redirect:
     delimiter: ';'
     allowed_domains: []          # empty = every host; otherwise e.g. ['example.com', 'www.example.com']
     status_code: 301             # 301 permanent, 302 temporary
-    priority: 20                 # kernel.request listener priority
+    priority: 40                 # kernel.request listener priority; must be > 32 (before the router)
 ```
+
+The listener runs at `kernel.request` with a priority of `40` by default so it fires **before**
+Symfony's / Sulu's `RouterListener` (priority `32`). A lower priority would let the router throw a
+`404 NotFoundHttpException` for legacy URLs that have no matching route, before the redirect can run.
 
 ## The CSV
 

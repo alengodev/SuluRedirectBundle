@@ -49,8 +49,8 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(Response::HTTP_MOVED_PERMANENTLY)
                 ->end()
                 ->integerNode('priority')
-                    ->info('kernel.request listener priority. High so redirects fire before routing/security.')
-                    ->defaultValue(20)
+                    ->info('kernel.request listener priority. Must be > 32 so the redirect fires before the (Sulu) RouterListener, which would otherwise throw a 404 for legacy URLs that have no route.')
+                    ->defaultValue(40)
                 ->end()
             ->end();
 
