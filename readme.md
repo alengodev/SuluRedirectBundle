@@ -35,7 +35,7 @@ Create `config/packages/alengo_redirect.yaml`. All keys are optional; defaults s
 ```yaml
 alengo_redirect:
     enabled: true
-    csv_path: '%kernel.project_dir%/config/redirects.csv'
+    csv_path: '%kernel.project_dir%/config/app/redirects.csv'
     delimiter: ';'
     allowed_domains: []          # empty = every host; otherwise e.g. ['example.com', 'www.example.com']
     status_code: 301             # 301 permanent, 302 temporary

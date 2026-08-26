@@ -32,7 +32,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('csv_path')
                     ->info('Absolute path to the CSV file mapping old URLs to new ones (delimiter-separated).')
                     ->cannotBeEmpty()
-                    ->defaultValue('%kernel.project_dir%/config/redirects.csv')
+                    ->defaultValue('%kernel.project_dir%/config/app/redirects.csv')
                 ->end()
                 ->scalarNode('delimiter')
                     ->info('CSV field delimiter.')
