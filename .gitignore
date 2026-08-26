@@ -1,0 +1,6 @@
+/.idea
+/tools
+/.php-cs-fixer.cache
+/vendor
+/phpstan.neon
+/composer.lock
