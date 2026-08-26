@@ -1,5 +1,5 @@
 {
-    "name": "alengo/redirect-bundle",
+    "name": "alengo/sulu-redirect-bundle",
     "type": "symfony-bundle",
     "description": "CSV-driven permanent redirects for Symfony/Sulu sites: map legacy URLs to their new location at kernel.request.",
     "keywords": [
@@ -9,7 +9,7 @@
         "migration",
         "seo"
     ],
-    "homepage": "https://github.com/alengodev/RedirectBundle",
+    "homepage": "https://github.com/alengodev/SuluRedirectBundle",
     "license": "MIT",
     "authors": [
         {
@@ -34,12 +34,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Alengo\\RedirectBundle\\": "src/"
+            "Alengo\\SuluRedirectBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Alengo\\RedirectBundle\\Tests\\": "tests/"
+            "Alengo\\SuluRedirectBundle\\Tests\\": "tests/"
         }
     },
     "config": {

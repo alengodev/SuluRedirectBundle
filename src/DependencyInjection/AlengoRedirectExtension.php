@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of Alengo\RedirectBundle.
+ * This file is part of Alengo\SuluRedirectBundle.
  *
  * (c) alengo
  *
@@ -11,10 +11,10 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Alengo\RedirectBundle\DependencyInjection;
+namespace Alengo\SuluRedirectBundle\DependencyInjection;
 
-use Alengo\RedirectBundle\EventSubscriber\RedirectListener;
-use Alengo\RedirectBundle\Redirect\RedirectMap;
+use Alengo\SuluRedirectBundle\EventSubscriber\RedirectListener;
+use Alengo\SuluRedirectBundle\Redirect\RedirectMap;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;

@@ -1,4 +1,4 @@
-# alengo/redirect-bundle
+# alengo/sulu-redirect-bundle
 
 CSV-driven permanent redirects for Symfony / Sulu sites. Maps legacy URLs to their new
 location at `kernel.request`, before routing and security run. Built for site migrations
@@ -15,7 +15,7 @@ time — editing the CSV invalidates the cache automatically, no `cache:clear` n
 ## Installation
 
 ```bash
-composer require alengo/redirect-bundle
+composer require alengo/sulu-redirect-bundle
 ```
 
 With Symfony Flex the bundle is registered automatically. Otherwise add it to
@@ -24,7 +24,7 @@ With Symfony Flex the bundle is registered automatically. Otherwise add it to
 ```php
 return [
     // ...
-    Alengo\RedirectBundle\AlengoRedirectBundle::class => ['all' => true],
+    Alengo\SuluRedirectBundle\AlengoRedirectBundle::class => ['all' => true],
 ];
 ```
 

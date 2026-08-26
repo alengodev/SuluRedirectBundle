@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of Alengo\RedirectBundle.
+ * This file is part of Alengo\SuluRedirectBundle.
  *
  * (c) alengo
  *
@@ -11,9 +11,9 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Alengo\RedirectBundle\EventSubscriber;
+namespace Alengo\SuluRedirectBundle\EventSubscriber;
 
-use Alengo\RedirectBundle\Redirect\RedirectMap;
+use Alengo\SuluRedirectBundle\Redirect\RedirectMap;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;

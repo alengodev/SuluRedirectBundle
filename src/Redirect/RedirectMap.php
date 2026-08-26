@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * This file is part of Alengo\RedirectBundle.
+ * This file is part of Alengo\SuluRedirectBundle.
  *
  * (c) alengo
  *
@@ -11,7 +11,7 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Alengo\RedirectBundle\Redirect;
+namespace Alengo\SuluRedirectBundle\Redirect;
 
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
