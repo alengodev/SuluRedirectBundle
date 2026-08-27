@@ -38,7 +38,7 @@ class WebspaceHostResolver
         foreach ($portalInformations as $portalInformation) {
             $webspaceKey = $portalInformation->getWebspaceKey();
 
-            if (null !== $webspaceKey && '' !== $webspaceKey) {
+            if (\is_string($webspaceKey) && '' !== $webspaceKey) {
                 return $webspaceKey;
             }
         }
