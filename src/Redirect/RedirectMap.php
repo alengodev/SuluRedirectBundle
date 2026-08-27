@@ -93,7 +93,7 @@ class RedirectMap
         $map = [];
 
         foreach ($lines as $line) {
-            $row = \str_getcsv((string) $line, $this->delimiter, '"', '\\');
+            $row = \str_getcsv((string) $line, $this->delimiter, '"', '');
 
             if (\count($row) < 2) {
                 continue;
