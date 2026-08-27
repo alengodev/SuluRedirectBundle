@@ -15,6 +15,7 @@ namespace Alengo\SuluRedirectBundle\DependencyInjection;
 
 use Alengo\SuluRedirectBundle\EventSubscriber\RedirectListener;
 use Alengo\SuluRedirectBundle\Redirect\RedirectMap;
+use Alengo\SuluRedirectBundle\Webspace\WebspaceHostResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
@@ -32,8 +33,15 @@ class AlengoRedirectExtension extends Extension
             return;
         }
 
+        $resolverDefinition = new Definition(WebspaceHostResolver::class, [
+            new Reference('sulu_core.webspace.webspace_manager'),
+        ]);
+        $resolverDefinition->setPublic(false);
+        $container->setDefinition(WebspaceHostResolver::class, $resolverDefinition);
+
         $mapDefinition = new Definition(RedirectMap::class, [
-            $config['csv_path'],
+            $config['csv_dir'],
+            $config['csv_pattern'],
             $config['delimiter'],
             // cache.app is always present in a full-stack app; degrade gracefully if not.
             new Reference('cache.app', ContainerInterface::NULL_ON_INVALID_REFERENCE),
@@ -42,8 +50,8 @@ class AlengoRedirectExtension extends Extension
         $container->setDefinition(RedirectMap::class, $mapDefinition);
 
         $listenerDefinition = new Definition(RedirectListener::class, [
+            new Reference(WebspaceHostResolver::class),
             new Reference(RedirectMap::class),
-            $config['allowed_domains'],
             $config['status_code'],
         ]);
         $listenerDefinition->setPublic(false);
