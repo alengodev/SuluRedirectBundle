@@ -704,9 +704,17 @@ Expected:
 ```
 match:   301 https://hasslacher.wip/media/2979/download/Produkthinweise_HASSLACHER-Gruppe_fin_24-08-2026.pdf?v=1
 nomatch: 404 (no location)
-foreign: 404 (no location)
+foreign: 301 https://foo.example.com/media/2979/download/Produkthinweise_HASSLACHER-Gruppe_fin_24-08-2026.pdf?v=1
 ```
-(Lines 2 and 3 must NOT be a 301 to our media path; a 404/other non-redirect is correct.)
+Required assertions:
+- `match` MUST be a 301 to exactly that hasslacher.wip URL.
+- `nomatch` MUST NOT be a 301 to our media path (404/other non-redirect is correct).
+- `foreign` in **dev/stage/test** is a 301 **to the same foreign host** — this is expected
+  and accepted (the webspace uses the `{host}` wildcard in those environments; see the
+  spec's "Accepted behavior: wildcard-host environments"). It is safe because the target
+  host equals the incoming host. In **prod** the same foreign host would return 404 (prod
+  pins concrete hosts). So the check here is: `foreign` redirects to **its own** host, never
+  to a different domain.
 
 - [ ] **Step 6: Commit (project repo)**
 

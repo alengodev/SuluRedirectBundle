@@ -123,6 +123,27 @@ Symfony 7.4. Sulu 2.6 compatibility is argued from stable-API usage, not execute
 - CSV row with <2 columns or a source not starting with `/` → skipped.
 - Sub-requests → skipped (`isMainRequest`).
 
+## Accepted behavior: wildcard-host environments
+
+The `hasslacher` webspace uses `<url>{host}/{localization}</url>` for the `dev`, `stage`
+and `test` environments — Sulu's `{host}` wildcard, which matches **any** hostname. So in
+those environments `WebspaceHostResolver` resolves *every* host to the `hasslacher`
+webspace, and a redirect fires for any host that requests a matching CSV path. Only `prod`
+pins concrete hosts (`hasslacher.alengo.dev` + custom-url `hasslacher.com`), where a
+foreign host correctly resolves to no webspace → no redirect.
+
+This is accepted as-is (decision 2026-08-26), for two reasons:
+
+1. It is the faithful consequence of the webspace configuration — the wildcard *is* the
+   configured "allowed domain" in those environments.
+2. It is safe: the redirect target is always the **incoming** host
+   (`$request->getSchemeAndHttpHost() . $target`), so a foreign host is only ever
+   redirected to a path on *itself* — there is no cross-domain open-redirect vector.
+
+Consequence for verification: in `dev`, a foreign host returns a 301 (to itself), not a
+404. The meaningful assertions are therefore `match → 301 (correct target)` and
+`nomatch → not our 301`.
+
 ## Project changes (Hasslacher)
 
 - `composer.json`: `alengo/sulu-redirect-bundle: ^2.0`.
