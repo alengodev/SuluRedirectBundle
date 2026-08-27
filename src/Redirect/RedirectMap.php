@@ -17,60 +17,69 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
- * Loads the redirect CSV once and exposes an O(1) lookup of old-URI → new-URI.
+ * Loads a webspace's domainless redirect CSV once and exposes an O(1) lookup of
+ * old request-URI → new request-URI (both path + optional query, no host).
  *
- * The parsed map is memoized for the request and, when a cache pool is available, cached
- * across requests keyed by the file's modification time so edits invalidate it automatically.
+ * One CSV per webspace, resolved from {csvDir}/{csvPattern} with {webspace} replaced by
+ * the webspace key. Parsed maps are memoized per key for the request and, when a cache
+ * pool is available, cached across requests keyed by the file's modification time.
  */
 class RedirectMap
 {
-    /** @var array<string, string>|null */
-    private ?array $map = null;
+    /** @var array<string, array<string, string>> */
+    private array $maps = [];
 
     public function __construct(
-        private readonly string $csvPath,
+        private readonly string $csvDir,
+        private readonly string $csvPattern = '{webspace}_redirects.csv',
         private readonly string $delimiter = ';',
         private readonly ?CacheInterface $cache = null,
     ) {
     }
 
     /**
-     * Returns the redirect target for the given absolute request URI, or null if none matches.
+     * Returns the redirect target (domainless) for the given request URI within the
+     * webspace, or null if none matches.
      */
-    public function resolve(string $uri): ?string
+    public function resolve(string $webspaceKey, string $requestUri): ?string
     {
-        return $this->map()[$uri] ?? null;
+        return $this->map($webspaceKey)[$requestUri] ?? null;
     }
 
     /**
      * @return array<string, string>
      */
-    private function map(): array
+    private function map(string $webspaceKey): array
     {
-        if (null !== $this->map) {
-            return $this->map;
+        if (isset($this->maps[$webspaceKey])) {
+            return $this->maps[$webspaceKey];
         }
 
-        if (!\is_readable($this->csvPath)) {
-            return $this->map = [];
+        $path = $this->csvDir . '/' . \str_replace('{webspace}', $webspaceKey, $this->csvPattern);
+
+        if (!\is_readable($path)) {
+            return $this->maps[$webspaceKey] = [];
         }
 
         if (null === $this->cache) {
-            return $this->map = $this->parse();
+            return $this->maps[$webspaceKey] = $this->parse($path);
         }
 
-        $modifiedAt = \filemtime($this->csvPath);
-        $cacheKey = 'alengo_redirect.map.' . \hash('xxh128', $this->csvPath) . '.' . ($modifiedAt ?: 0);
+        $modifiedAt = \filemtime($path);
+        $cacheKey = 'alengo_redirect.map.' . \hash('xxh128', $path) . '.' . ($modifiedAt ?: 0);
 
-        return $this->map = $this->cache->get($cacheKey, fn (ItemInterface $item): array => $this->parse());
+        return $this->maps[$webspaceKey] = $this->cache->get(
+            $cacheKey,
+            fn (ItemInterface $item): array => $this->parse($path),
+        );
     }
 
     /**
      * @return array<string, string>
      */
-    private function parse(): array
+    private function parse(string $path): array
     {
-        $lines = \file($this->csvPath, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES);
+        $lines = \file($path, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES);
 
         if (false === $lines) {
             return [];
@@ -90,20 +99,15 @@ class RedirectMap
                 continue;
             }
 
-            $oldUrl = \trim((string) ($row[0] ?? ''));
-            $newUrl = \trim((string) ($row[1] ?? ''));
+            $source = \trim((string) ($row[0] ?? ''));
+            $target = \trim((string) ($row[1] ?? ''));
 
-            if ('' === $oldUrl || '' === $newUrl) {
+            // Domainless: both columns must be absolute paths. Skips comments/garbage.
+            if (!\str_starts_with($source, '/') || !\str_starts_with($target, '/')) {
                 continue;
             }
 
-            // Only keep well-formed absolute source URLs; skip comments/garbage lines.
-            $parts = \parse_url($oldUrl);
-            if (!isset($parts['scheme'], $parts['host'], $parts['path'])) {
-                continue;
-            }
-
-            $map[$oldUrl] = $newUrl;
+            $map[$source] = $target;
         }
 
         return $map;
