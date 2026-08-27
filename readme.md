@@ -25,6 +25,34 @@ domain. This is safe by construction: the redirect target is always built on the
 webspaces pin concrete hosts, so only real production hosts match and everything else
 falls through to normal routing (typically a `404`).
 
+### Behind a CDN / reverse proxy (trusted proxies)
+
+The listener reads the request through standard Symfony accessors — `getHost()` (webspace
+resolution), `getRequestUri()` (CSV lookup) and `getSchemeAndHttpHost()` (redirect target).
+These are the **same** accessors Sulu itself uses to resolve webspaces and generate URLs,
+so the bundle introduces no proxy requirement beyond what the Sulu site already needs — but
+it does inherit it: the emitted `Location` is only correct when the app sees the **real
+public scheme and host**.
+
+Behind a CDN or reverse proxy (Bunny, Cloudflare, Fastly, Varnish, an Apache/nginx front,
+…) that means one of:
+
+- **Trusted proxies** — set Symfony's `trusted_proxies` to the proxy IPs and trust at least
+  `X-Forwarded-Proto` (for the scheme) and, if the proxy forwards the public host that way,
+  `X-Forwarded-Host`. Without this the forwarded headers are ignored and the redirect can
+  come out as `http://…`, adding an extra `http → https` hop.
+- **or** an origin-level host rewrite — some setups don't forward the public host as a header
+  at all (the origin serves its own vhost and would answer the public host with `421`).
+  There the public host is presented to the app at the web-server level (e.g. Apache
+  `RequestHeader set Host "www.example.com"` before `mod_rewrite`), and the origin
+  connection itself is HTTPS so the scheme is already correct. `X-Forwarded-Host` is then
+  intentionally **not** trusted.
+
+Consequence either way: whatever host + scheme the app resolves is exactly where a matched
+legacy URL redirects to. If the front-end terminates TLS and talks HTTP to the origin,
+trust `X-Forwarded-Proto` or the `Location` will be `http`. There is no open-redirect risk
+— the target is always built on the app-visible host, never on an attacker-supplied one.
+
 ## Installation
 
 ```bash
